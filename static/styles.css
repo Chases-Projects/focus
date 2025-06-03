@@ -1,0 +1,25 @@
+body {
+    font-family: sans-serif;
+    margin: 2rem;
+    background-color: #f4f4f9;
+}
+input, textarea, button {
+    margin: 0.5rem 0;
+    display: block;
+    width: 100%;
+    max-width: 400px;
+}
+ul {
+    padding-left: 1.2rem;
+}
+.task-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 500px;
+    margin-bottom: 5px;
+}
+
+.task-row form {
+    margin: 0;
+}
