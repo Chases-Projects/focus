@@ -1,25 +1,53 @@
 body {
     font-family: sans-serif;
-    margin: 2rem;
-    background-color: #f4f4f9;
-}
-input, textarea, button {
-    margin: 0.5rem 0;
-    display: block;
-    width: 100%;
-    max-width: 400px;
-}
-ul {
-    padding-left: 1.2rem;
-}
-.task-row {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 0 20px;
+  }
+  
+  h1, h2 {
+    margin-bottom: 0.5em;
+  }
+  
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .task-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    max-width: 500px;
-    margin-bottom: 5px;
-}
-
-.task-row form {
-    margin: 0;
-}
+    margin-bottom: 6px;
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+  
+  .task-row form {
+    margin: 0 5px;
+  }
+  
+  .completed {
+    text-decoration: line-through;
+    color: gray;
+  }
+  
+  textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 1em;
+  }
+  
+  button {
+    cursor: pointer;
+  }
+  
+  .hidden {
+    display: none;
+  }
+  
+  .drag-handle {
+    cursor: grab;
+  }
+  
