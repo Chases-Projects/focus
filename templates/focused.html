@@ -1,70 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Daily Focus Sheet</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+  <!-- Theme detection to prevent FOUC (Flash of Unstyled Content) -->
   <script src="{{ url_for('static', filename='theme-init.js') }}"></script>
-  
+
+  <!-- Link external stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-  <h1>🗓️ Daily Focus Sheet</h1>
+    <h1>🗓️ Daily Focus</h1>
 
-  {% for label, key, items in [('Top 3 Priorities', 'top3', top3), ('To-Do Queue', 'todo', todo), ('Distraction Log', 'distractions', distractions)] %}
-    <h2>{{ label }}</h2>
-    <button onclick="toggleCompleted(this)">Show Completed</button>
-    <ul id="{{ key }}-list">
-      {% for item in items %}
-        {% set is_editing = editing_id == item.id %}
-        <li class="task-row drag-handle {% if item.completed %}completed-item hidden{% endif %}" data-id="{{ item.id }}">
-          <form method="POST">
-            <input type="hidden" name="section" value="complete">
-            <input type="hidden" name="task_id" value="{{ item.id }}">
-            <input type="checkbox" onChange="this.form.submit()" {% if item.completed %}checked{% endif %}>
-          </form>
+    <!-- Top 3 Priorities Section -->
+    <section>
+        <h2>🎯 Top 3 Priorities</h2>
+        <ul id="top3-list">
+        {% for task in top3 %}
+            <li data-id="{{ task.id }}" class="task-row {% if task.completed %}completed-item{% endif %}">
+            <span class="drag-handle">☰</span>
+            <input type="checkbox" {% if task.completed %}checked{% endif %} onclick="location.href='?edit_id={{ task.id }}'">
+            {% if editing_id == task.id %}
+                <form method="POST">
+                <input type="hidden" name="section" value="edit">
+                <input type="hidden" name="task_id" value="{{ task.id }}">
+                <input name="item" value="{{ task.content }}">
+                <button type="submit">Save</button>
+                </form>
+            {% else %}
+                <span>{{ task.content }}</span>
+                <form method="POST" class="inline-form">
+                <input type="hidden" name="section" value="complete">
+                <input type="hidden" name="task_id" value="{{ task.id }}">
+                <button type="submit">✔</button>
+                </form>
+                <form method="POST" class="inline-form">
+                <input type="hidden" name="section" value="delete">
+                <input type="hidden" name="task_id" value="{{ task.id }}">
+                <button type="submit">🗑</button>
+                </form>
+            {% endif %}
+            </li>
+        {% endfor %}
+        </ul>
+        
+        <!-- Add new task -->
+        <form method="POST">
+        <input type="hidden" name="section" value="top3">
+        <input name="item" placeholder="Add new task...">
+        <button type="submit">Add</button>
+        </form>
+    </section>
 
-          {% if is_editing %}
-            <form method="POST">
-              <input name="item" value="{{ item.content }}">
-              <input type="hidden" name="section" value="edit">
-              <input type="hidden" name="task_id" value="{{ item.id }}">
-              <button type="submit">💾</button>
-            </form>
-          {% else %}
-            <span class="{% if item.completed %}completed{% endif %}">{{ item.content }}</span>
-            <form method="POST">
-              <input type="hidden" name="task_id" value="{{ item.id }}">
-              <input type="hidden" name="section" value="delete">
-              <button type="submit">🗑️</button>
-            </form>
-            <form method="GET">
-              <input type="hidden" name="edit_id" value="{{ item.id }}">
-              <button type="submit">✏️</button>
-            </form>
-          {% endif %}
-        </li>
-      {% endfor %}
-    </ul>
-    <form method="POST">
-      <input name="item" placeholder="Add new item">
-      <input type="hidden" name="section" value="{{ key }}">
-      <button type="submit">Add</button>
-    </form>
-  {% endfor %}
+    <!-- To-Do Queue Section -->
+    <section>
+        <h2>📋 To-Do Queue</h2>
+        <ul id="todo-list">
+        {% for task in todo %}
+            <li data-id="{{ task.id }}" class="task-row {% if task.completed %}completed-item{% endif %}">
+            <span class="drag-handle">☰</span>
+            <input type="checkbox" {% if task.completed %}checked{% endif %} onclick="location.href='?edit_id={{ task.id }}'">
+            {% if editing_id == task.id %}
+                <form method="POST">
+                <input type="hidden" name="section" value="edit">
+                <input type="hidden" name="task_id" value="{{ task.id }}">
+                <input name="item" value="{{ task.content }}">
+                <button type="submit">Save</button>
+                </form>
+            {% else %}
+                <span>{{ task.content }}</span>
+                <form method="POST" class="inline-form">
+                <input type="hidden" name="section" value="complete">
+                <input type="hidden" name="task_id" value="{{ task.id }}">
+                <button type="submit">✔</button>
+                </form>
+                <form method="POST" class="inline-form">
+                <input type="hidden" name="section" value="delete">
+                <input type="hidden" name="task_id" value="{{ task.id }}">
+                <button type="submit">🗑</button>
+                </form>
+            {% endif %}
+            </li>
+        {% endfor %}
+        </ul>
 
-  <!-- Text box for taking notes -->
-  <h2>🧠 Quick Notes</h2>
-  <form method="POST">
-    <textarea name="item" rows="5">{{ note.content if note else '' }}</textarea>
-    <input type="hidden" name="section" value="notes">
-    <button type="submit">Save</button>
-  </form>
+        <!-- Add new task -->
+        <form method="POST">
+        <input type="hidden" name="section" value="todo">
+        <input name="item" placeholder="Add new task...">
+        <button type="submit">Add</button>
+        </form>
+    </section>
 
-  <!-- Javascript Src -->
-  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-  <script src="{{ url_for('static', filename='sortable.js') }}"></script>
-  <script src="{{ url_for('static', filename='toggle.js') }}"></script>
-  <script src="{{ url_for('static', filename='darkmode.js') }}"></script>
+    <!-- Distractions Section -->
+    <section>
+        <h2>🪵 Distraction Log</h2>
+        <ul id="distractions-list">
+        {% for task in distractions %}
+            <li data-id="{{ task.id }}" class="task-row {% if task.completed %}completed-item{% endif %}">
+            <span class="drag-handle">☰</span>
+            <input type="checkbox" {% if task.completed %}checked{% endif %} onclick="location.href='?edit_id={{ task.id }}'">
+            {% if editing_id == task.id %}
+                <form method="POST">
+                <input type="hidden" name="section" value="edit">
+                <input type="hidden" name="task_id" value="{{ task.id }}">
+                <input name="item" value="{{ task.content }}">
+                <button type="submit">Save</button>
+                </form>
+            {% else %}
+                <span>{{ task.content }}</span>
+                <form method="POST" class="inline-form">
+                <input type="hidden" name="section" value="complete">
+                <input type="hidden" name="task_id" value="{{ task.id }}">
+                <button type="submit">✔</button>
+                </form>
+                <form method="POST" class="inline-form">
+                <input type="hidden" name="section" value="delete">
+                <input type="hidden" name="task_id" value="{{ task.id }}">
+                <button type="submit">🗑</button>
+                </form>
+            {% endif %}
+            </li>
+        {% endfor %}
+        </ul>
 
-</body>
-</html>
+        <!-- Add new distraction -->
+        <form method="POST">
+        <input type="hidden" name="section" value="distractions">
+        <input name="item" placeholder="Add new distraction...">
+        <button type="submit">Add</button>
+        </form>
+    </section>
+
+    <!-- Notes Section -->
+    <section>
+        <h2>📝 Quick Notes</h2>
+        <form method="POST">
+        <input type="hidden" name="section" value="notes">
+        <textarea name="item" placeholder="Write your thoughts here...">{{ note.content if note else '' }}</textarea>
+        <button type="submit">Save Note</button>
+        </form>
+    </section>
+
+    <!-- Toggle Buttons -->
+    <button id="toggle-completed">Hide Completed</button>
+
+    <!-- External JS Scripts -->
+    <script src="{{ url_for('static', filename='sortable.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='sortable.js') }}"></script>
+    <script src="{{ url_for('static', filename='toggle.js') }}"></script>
+    <script src="{{ url_for('static', filename='darkmode.js') }}"></script>
+    </body>
+
+    </html>
